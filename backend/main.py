@@ -8,10 +8,15 @@ from supabase import create_client
 STATUSES = {'todo', 'doing', 'done'}
 
 def db():
-    url = os.getenv('SUPABASE_URL')
-    key = os.getenv('SUPABASE_SERVICE_ROLE_KEY')
+    url = os.getenv('SUPABASE_URL', '').strip().rstrip('/')
+    key = os.getenv('SUPABASE_SERVICE_ROLE_KEY', '').strip()
+
     if not url or not key:
         raise HTTPException(503, 'Supabase credentials are not configured')
+
+    if not url.startswith('https://') or not url.endswith('.supabase.co'):
+        raise HTTPException(503, 'Invalid SUPABASE_URL format')
+
     return create_client(url, key)
 
 app = FastAPI(title='Kanban Board API')
